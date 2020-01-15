@@ -1,5 +1,7 @@
 package com.cts.StatementProcessorDemo.Service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,10 +13,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.sax.SAXSource;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.cts.StatementProcessorDemo.Model.Statement;
+import com.cts.StatementProcessorDemo.Model.Statement1;
 import com.cts.StatementProcessorDemo.Model.StatementResult;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
@@ -125,5 +136,44 @@ public class StatementService {
 
         beanWriter.write(statementList);
         writer.close();
+    }
+
+    public List<Statement> readXml(MultipartFile inputFile) throws JAXBException {
+//        File file = new File(inputFile.getOriginalFilename());
+//        JAXBContext jaxbContext = JAXBContext.newInstance(Statement1.class);
+//
+//        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+//        NamespaceFilter inFilter = new NamespaceFilter("http://www.example.com/namespaceurl", true);
+//        
+//
+//        Statement1 employee = (Statement1) jaxbUnmarshaller.unmarshal(file);
+//
+//        System.out.println(employee.getRecordList());
+        
+        
+        
+      //Prepare JAXB objects
+//        JAXBContext jc = JAXBContext.newInstance("jaxb.package");
+//        Unmarshaller u = jc.createUnmarshaller();
+//
+//        //Create an XMLReader to use with our filter
+//        XMLReader reader = XMLReaderFactory.createXMLReader();
+//
+//        //Create the filter (to add namespace) and set the xmlReader as its parent.
+//        NamespaceFilter inFilter = new NamespaceFilter("http://www.example.com/namespaceurl", true);
+//        inFilter.setParent(reader);
+//
+//        //Prepare the input, in this case a java.io.File (output)
+//        InputSource is = new InputSource(new FileInputStream(output));
+//
+//        //Create a SAXSource specifying the filter
+//        SAXSource source = new SAXSource(inFilter, is);
+//
+//        //Do unmarshalling
+//        Object myJaxbObject = u.unmarshal(source);
+        
+        
+
+        return null;
     }
 }

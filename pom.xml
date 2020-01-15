@@ -29,6 +29,13 @@
 			<artifactId>opencsv</artifactId>
 			<version>4.5</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/javax.xml/namespace -->
+<dependency>
+    <groupId>javax.xml</groupId>
+    <artifactId>namespace</artifactId>
+    <version>1.0.1</version>
+</dependency>
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
