@@ -1,20 +1,20 @@
 package com.cts.StatementProcessorDemo.Model;
 
 public class StatementResult {
-    private String referenceNo;
+    private String reference;
     private String description;
 
-    public StatementResult(String referenceNo, String description) {
-        this.referenceNo = referenceNo;
+    public StatementResult(String reference, String description) {
+        this.reference = reference;
         this.description = description;
     }
 
-    public String getReferenceNo() {
-        return referenceNo;
+    public String getReference() {
+        return reference;
     }
 
-    public void setReferenceNo(String referenceNo) {
-        this.referenceNo = referenceNo;
+    public void setReference(String reference) {
+        this.reference = reference;
     }
 
     public String getDescription() {

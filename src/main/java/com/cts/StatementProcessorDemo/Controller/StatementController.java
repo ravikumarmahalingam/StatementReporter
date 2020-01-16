@@ -26,17 +26,19 @@ public class StatementController {
     StatementService statementService;
 
     @RequestMapping(method = RequestMethod.GET, value = "/processStatement", produces = "text/csv")
-    public ResponseEntity processStatement(@RequestParam("file") MultipartFile inputFile)
+    public ResponseEntity<FileSystemResource> processStatement(@RequestParam("file") MultipartFile inputFile)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException, Exception {
         List<Statement> statementList = null;
         if (inputFile.getOriginalFilename().endsWith(".csv")) {
             statementList = statementService.readCsv(inputFile);
-        }else if(inputFile.getOriginalFilename().endsWith(".xml")){
+        } else if (inputFile.getOriginalFilename().endsWith(".xml")) {
             statementList = statementService.readXml(inputFile);
-        }else{
+        } else {
             throw new Exception("Provide a file of type csv or xml");
         }
-        List<StatementResult> statementResultsList = statementService.validateRecords(statementList);
+
+        List<StatementResult> statementResultsList = statementService.filterOutputRecords(statementList);
+
         statementService.getResult(statementResultsList);
 
         File file = new File("ResultFile.csv");

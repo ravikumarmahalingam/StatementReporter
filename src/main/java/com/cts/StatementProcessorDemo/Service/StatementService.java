@@ -1,31 +1,28 @@
 package com.cts.StatementProcessorDemo.Service;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.text.DecimalFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.sax.SAXSource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
+import com.cts.StatementProcessorDemo.Model.Records;
 import com.cts.StatementProcessorDemo.Model.Statement;
-import com.cts.StatementProcessorDemo.Model.Statement1;
 import com.cts.StatementProcessorDemo.Model.StatementResult;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
@@ -42,9 +39,8 @@ public class StatementService {
 
     public List<Statement> readCsv(MultipartFile inputFile) {
 
-        // Hashmap to map CSV data
         Map<String, String> dataToMap = new HashMap<String, String>();
-        dataToMap.put("Reference", "referenceNo");
+        dataToMap.put("Reference", "reference");
         dataToMap.put("Description", "description");
         dataToMap.put("Start Balance", "startBalance");
         dataToMap.put("Mutation", "mutation");
@@ -70,58 +66,34 @@ public class StatementService {
 
         return statementList;
     }
+    
+    public List<Statement> readXml(MultipartFile inputFile) throws JAXBException, IllegalStateException, IOException {
 
-    public List<StatementResult> validateRecords(List<Statement> statementList) {
-        List<StatementResult> statementResultsList = new LinkedList<StatementResult>();
-        // Map to hold the ReferenceNo and Description
-        Map<String, String> referenceMap = new HashMap<String, String>();
-        Map<String, Integer> referenceMap1 = new HashMap<String, Integer>();
-        for (Statement statement : statementList) {
-            Boolean result = validateReferenceNumber(statement, referenceMap1, referenceMap, statementResultsList);
-            if (result == false) {
-                validateBalance(statement, statementResultsList);
-            }
+        File xmlFile = new File(System.getProperty("java.io.tmpdir") + "/" + inputFile);
+        inputFile.transferTo(xmlFile);
+
+        JAXBContext jaxbContext;
+        try {
+            jaxbContext = JAXBContext.newInstance(Records.class);
+
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+
+            Records records = (Records) jaxbUnmarshaller.unmarshal(xmlFile);
+
+            List<Statement> statementList = records.getRecordList();
+
+            return statementList;
+
+        } catch (JAXBException e) {
+            e.printStackTrace();
         }
-        return statementResultsList;
-    }
-
-    private Boolean validateReferenceNumber(Statement statement, Map<String, Integer> referenceMap1,
-            Map<String, String> referenceMap, List<StatementResult> statementResultsList) {
-        Boolean result = false;
-        String referenceNo = statement.getReferenceNo();
-        String description = statement.getDescription();
-        if (referenceMap.containsKey(referenceNo)) {
-            if (referenceMap1.get(referenceNo) == 1) {
-                referenceMap1.put(referenceNo, referenceMap1.get(referenceNo) + 1);
-                statementResultsList.add(new StatementResult(referenceNo, referenceMap.get(referenceNo)));
-            }
-            statementResultsList.add(new StatementResult(referenceNo, description));
-            result = true;
-        } else {
-            referenceMap.put(referenceNo, description);
-            referenceMap1.put(referenceNo, 1);
-            result = false;
-        }
-        return result;
-    }
-
-    private void validateBalance(Statement statement, List<StatementResult> statementResultsList) {
-        // Restricting the decimal value to two
-        DecimalFormat decimalFormat = new DecimalFormat("#.##");
-        Double startBalance = Double.valueOf(decimalFormat.format(Double.parseDouble(statement.getStartBalance())));
-        Double mutation = Double.valueOf(decimalFormat.format(Double.parseDouble(statement.getMutation())));
-        Double endBalance = Double.valueOf(decimalFormat.format(Double.parseDouble(statement.getEndBalance())));
-
-        Double balance = Double.valueOf(decimalFormat.format(Double.sum(startBalance, mutation)));
-        if (!(Double.compare(balance, endBalance) == 0)) {
-            statementResultsList.add(new StatementResult(statement.getReferenceNo(), statement.getDescription()));
-        }
+        return null;
     }
 
     public void getResult(List<StatementResult> statementList)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException {
         // Adding the header to the result file
-        statementList.add(new StatementResult("ReferenceNo", "Description"));
+        statementList.add(new StatementResult("Reference", "Description"));
         Collections.reverse(statementList);
 
         FileWriter writer = new FileWriter("ResultFile.csv");
@@ -129,7 +101,7 @@ public class StatementService {
         mappingStrategy.setType(StatementResult.class);
 
         // Setting the mapping strategy
-        String[] columns = new String[] { "ReferenceNo", "Description" };
+        String[] columns = new String[] { "Reference", "Description" };
         mappingStrategy.setColumnMapping(columns);
         StatefulBeanToCsvBuilder<StatementResult> builder = new StatefulBeanToCsvBuilder<StatementResult>(writer);
         StatefulBeanToCsv<StatementResult> beanWriter = builder.withMappingStrategy(mappingStrategy).build();
@@ -138,42 +110,41 @@ public class StatementService {
         writer.close();
     }
 
-    public List<Statement> readXml(MultipartFile inputFile) throws JAXBException {
-//        File file = new File(inputFile.getOriginalFilename());
-//        JAXBContext jaxbContext = JAXBContext.newInstance(Statement1.class);
-//
-//        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-//        NamespaceFilter inFilter = new NamespaceFilter("http://www.example.com/namespaceurl", true);
-//        
-//
-//        Statement1 employee = (Statement1) jaxbUnmarshaller.unmarshal(file);
-//
-//        System.out.println(employee.getRecordList());
-        
-        
-        
-      //Prepare JAXB objects
-//        JAXBContext jc = JAXBContext.newInstance("jaxb.package");
-//        Unmarshaller u = jc.createUnmarshaller();
-//
-//        //Create an XMLReader to use with our filter
-//        XMLReader reader = XMLReaderFactory.createXMLReader();
-//
-//        //Create the filter (to add namespace) and set the xmlReader as its parent.
-//        NamespaceFilter inFilter = new NamespaceFilter("http://www.example.com/namespaceurl", true);
-//        inFilter.setParent(reader);
-//
-//        //Prepare the input, in this case a java.io.File (output)
-//        InputSource is = new InputSource(new FileInputStream(output));
-//
-//        //Create a SAXSource specifying the filter
-//        SAXSource source = new SAXSource(inFilter, is);
-//
-//        //Do unmarshalling
-//        Object myJaxbObject = u.unmarshal(source);
-        
-        
 
-        return null;
+
+    public List<StatementResult> filterOutputRecords(List<Statement> statementList) {
+        List<StatementResult> finalResult = new LinkedList<StatementResult>();
+        Map<String, List<Statement>> statementRefGrp = statementList.stream()
+                .collect(Collectors.groupingBy(Statement::getReference));
+
+        List<Statement> dupRefStatementList = statementRefGrp.values().stream()
+                .filter(duplicates -> duplicates.size() > 1).flatMap(Collection::stream).collect(Collectors.toList());
+
+        statementList.removeAll(dupRefStatementList);
+
+        dupRefStatementList.stream().forEach(statement -> finalResult
+                .add(new StatementResult(statement.getReference(), statement.getDescription())));
+
+        List<Statement> balMismatchStatementList = statementList.stream().filter(statement -> checkBalance(statement))
+                .collect(Collectors.toList());
+
+        balMismatchStatementList.stream().forEach(statement -> finalResult
+                .add(new StatementResult(statement.getReference(), statement.getDescription())));
+
+        return finalResult;
+    }
+
+    private Boolean checkBalance(Statement statement) {
+        Boolean result = false;
+        DecimalFormat decimalFormat = new DecimalFormat("#.##");
+        Double startBalance = Double.valueOf(decimalFormat.format(Double.parseDouble(statement.getStartBalance())));
+        Double mutation = Double.valueOf(decimalFormat.format(Double.parseDouble(statement.getMutation())));
+        Double endBalance = Double.valueOf(decimalFormat.format(Double.parseDouble(statement.getEndBalance())));
+
+        Double balance = Double.valueOf(decimalFormat.format(Double.sum(startBalance, mutation)));
+        if (!(Double.compare(balance, endBalance) == 0)) {
+            result = true;
+        }
+        return result;
     }
 }
