@@ -16,7 +16,7 @@
 There are several ways to run a Spring Boot application on your local machine. One way is to execute the `main` method in the `com.cts.StatementProcessorDemo.StatementProcessorDemoApplication` class from your IDE.
 
 - Download the zip or clone the Git repository.
-- Unzip the zip file (if you downloaded one)
+- Unzip the zip file.
 - Open Command Prompt and Change directory (cd) to folder containing pom.xml
 - Open Eclipse 
    - File -> Import -> Existing Maven Project -> Navigate to the folder where you unzipped the zip
@@ -35,6 +35,8 @@ mvn spring-boot:run
 |  URL |  Method | Remarks |
 |----------|--------------|--------------|
 |`http://localhost:8080/processStatement`            | GET | Custom Response Headers|
+
+In the header tab of postman give the key as 'file' and select the file type as File and then in the value section browse the csv file or the xml file and hit the send button. 
 
 ## packages
 
