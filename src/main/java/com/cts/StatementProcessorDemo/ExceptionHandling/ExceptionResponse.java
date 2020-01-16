@@ -4,7 +4,6 @@ public class ExceptionResponse {
 
     private String errorMessage;
     private String requestedURI;
-    private StackTraceElement[] stackTraceList;
 
     public String getErrorMessage() {
         return errorMessage;
@@ -20,13 +19,5 @@ public class ExceptionResponse {
 
     public void setRequestedURI(String requestedURI) {
         this.requestedURI = requestedURI;
-    }
-
-    public StackTraceElement[] getStackTraceList() {
-        return stackTraceList;
-    }
-
-    public void setStackTraceList(StackTraceElement[] stackTraceList) {
-        this.stackTraceList = stackTraceList;
     }
 }

@@ -29,6 +29,7 @@ public class StatementController {
     public ResponseEntity<FileSystemResource> processStatement(@RequestParam("file") MultipartFile inputFile)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException, Exception {
         List<Statement> statementList = null;
+        //Check for the file type and call corresponding service method to parse the file
         if (inputFile.getOriginalFilename().endsWith(".csv")) {
             statementList = statementService.readCsv(inputFile);
         } else if (inputFile.getOriginalFilename().endsWith(".xml")) {
@@ -37,6 +38,7 @@ public class StatementController {
             throw new Exception("Provide a file of type csv or xml");
         }
 
+        //Filter the list to hold the reference duplicate and balance mismatch records
         List<StatementResult> statementResultsList = statementService.filterOutputRecords(statementList);
 
         statementService.getResult(statementResultsList);
