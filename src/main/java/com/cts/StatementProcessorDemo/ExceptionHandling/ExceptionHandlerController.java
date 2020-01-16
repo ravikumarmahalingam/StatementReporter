@@ -58,6 +58,7 @@ public class ExceptionHandlerController {
         ExceptionResponse error = new ExceptionResponse();
         error.setErrorMessage(exception.getMessage());
         error.setStackTraceList(exception.getStackTrace());
+        exception.printStackTrace();
         return error;
     }
 }
