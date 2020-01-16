@@ -9,7 +9,14 @@
 
 ## External Tools Used
 
-* [Postman](https://www.getpostman.com/) - API Development Environment (Testing Docmentation)
+* [Postman](https://www.getpostman.com/) - API Development Environment (Testing Documentation)
+Download the app and get started. 
+
+|  URL |  Method | Remarks |
+|----------|--------------|--------------|
+|`http://localhost:8080/processStatement`            | GET |
+
+In the header tab of postman give the key as 'file' and select the file type as File and then in the value section browse the csv file or the xml file and hit the send button. 
 
 ## Running the application locally
 
@@ -29,14 +36,6 @@ Alternatively you can use the [Spring Boot Maven plugin](https://docs.spring.io/
 ```shell
 mvn spring-boot:run
 ```
-
-### URLs
-
-|  URL |  Method | Remarks |
-|----------|--------------|--------------|
-|`http://localhost:8080/processStatement`            | GET | Custom Response Headers|
-
-In the header tab of postman give the key as 'file' and select the file type as File and then in the value section browse the csv file or the xml file and hit the send button. 
 
 ## packages
 
