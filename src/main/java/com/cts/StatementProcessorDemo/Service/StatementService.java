@@ -20,8 +20,10 @@ import javax.xml.bind.Unmarshaller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.cts.StatementProcessorDemo.Model.Records;
 import com.cts.StatementProcessorDemo.Model.Statement;
@@ -80,6 +82,7 @@ public class StatementService {
 
         } catch (IOException e) {
             logger.error("IOException occured while reading the csv file:::" + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File extension should be csv of xml");
         }
         return statementList;
     }
@@ -106,12 +109,11 @@ public class StatementService {
 
             // Unmarshal the file and get the records
             Records records = (Records) jaxbUnmarshaller.unmarshal(xmlFile);
-
             statementList = records.getRecordList();
         } catch (IOException e) {
-            logger.error("IOException occured while reading the xml file:::" + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "IOException in readXML function");
         } catch (JAXBException e) {
-            logger.error("JAXBException occured while reading the xml file:::" + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "JAXBException in readXML function");
         }
 
         return statementList;
@@ -143,11 +145,13 @@ public class StatementService {
             beanWriter.write(statementList);
             writer.close();
         } catch (IOException e) {
-            logger.error("IOException occured while reading the xml file:::" + e.getMessage());
-        } catch (CsvDataTypeMismatchException e) {
-            logger.error("CsvDataTypeMismatchException occured while reading the xml file:::" + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "IOException in getResult function");
         } catch (CsvRequiredFieldEmptyException e) {
-            logger.error("CsvRequiredFieldEmptyException occured while reading the xml file:::" + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "CsvRequiredFieldEmptyException in getResult function");
+        } catch (CsvDataTypeMismatchException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "CsvDataTypeMismatchException in getResult functions");
         }
     }
 
@@ -203,15 +207,20 @@ public class StatementService {
      * @return Boolean Returns true if the record has balance mismatch
      */
     private Boolean checkBalance(Statement statement) {
-        Boolean result = false;
-        DecimalFormat decimalFormat = new DecimalFormat("#.##");
-        Double startBalance = Double.valueOf(decimalFormat.format(Double.parseDouble(statement.getStartBalance())));
-        Double mutation = Double.valueOf(decimalFormat.format(Double.parseDouble(statement.getMutation())));
-        Double endBalance = Double.valueOf(decimalFormat.format(Double.parseDouble(statement.getEndBalance())));
 
-        Double balance = Double.valueOf(decimalFormat.format(Double.sum(startBalance, mutation)));
-        if (!(Double.compare(balance, endBalance) == 0)) {
-            result = true;
+        Boolean result = false;
+        try {
+            DecimalFormat decimalFormat = new DecimalFormat("#.##");
+            Double startBalance = Double.valueOf(decimalFormat.format(Double.parseDouble(statement.getStartBalance())));
+            Double mutation = Double.valueOf(decimalFormat.format(Double.parseDouble(statement.getMutation())));
+            Double endBalance = Double.valueOf(decimalFormat.format(Double.parseDouble(statement.getEndBalance())));
+
+            Double balance = Double.valueOf(decimalFormat.format(Double.sum(startBalance, mutation)));
+            if (!(Double.compare(balance, endBalance) == 0)) {
+                result = true;
+            }
+        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Number format exception in csv file");
         }
         return result;
     }

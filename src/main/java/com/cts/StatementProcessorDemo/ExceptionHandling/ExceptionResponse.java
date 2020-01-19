@@ -1,9 +1,18 @@
 package com.cts.StatementProcessorDemo.ExceptionHandling;
 
-public class ExceptionResponse {
+import org.springframework.http.HttpStatus;
+
+public class ExceptionResponse{
 
     private String errorMessage;
     private String requestedURI;
+    private HttpStatus httpStatus;
+
+    public ExceptionResponse(HttpStatus httpStatus, String errorMessage, String requestedURI) {
+        this.httpStatus = httpStatus;
+        this.errorMessage = errorMessage;
+        this.requestedURI = requestedURI;
+    }
 
     public String getErrorMessage() {
         return errorMessage;
@@ -19,5 +28,13 @@ public class ExceptionResponse {
 
     public void setRequestedURI(String requestedURI) {
         this.requestedURI = requestedURI;
+    }
+
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
+    }
+
+    public void setHttpStatus(HttpStatus httpStatus) {
+        this.httpStatus = httpStatus;
     }
 }
